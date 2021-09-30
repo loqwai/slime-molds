@@ -29,7 +29,7 @@ const createUpdateProgram = async (gl) => {
   gl.transformFeedbackVaryings(
     program,
     ["outPosition", "outVelocity"],
-    gl.SEPARATE_ATTRIBS,
+    gl.INTERLEAVED_ATTRIBS,
   )
 
   gl.linkProgram(program);
@@ -56,22 +56,6 @@ const createRenderProgram = async (gl) => {
   return program;
 }
 
-const render = (gl, state) => {
-  // Render
-  gl.clearColor(0, 0, 0, 0);
-  gl.clear(gl.COLOR_BUFFER_BIT);
-
-  gl.useProgram(state.renderProgram);
-  gl.bindVertexArray(state.vaos.render.read);
-  gl.drawArrays(gl.POINTS, 0, state.particlesCount);
-
-  // for (let i = 0; i < state.particlesCount; i++) {
-  //   const debug = gl.getVertexAttrib(i, gl.CURRENT_VERTEX_ATTRIB)
-  //   console.log('postrender', i, debug)
-  // }
-  requestAnimationFrame((timestamp) => render(gl, state, timestamp))
-}
-
 const createInitialData = (n) => {
   const data = []
 
@@ -84,10 +68,11 @@ const createInitialData = (n) => {
     data.push(x)
 
     // // velocity
-    const vx = -1 * ((i / n) * 2) - 1 // -1 <= x <= 1
+    const vx = 0.1 * (-1 * ((i / n) * 2) - 1)
+    const vy = -0.5 * (i / n)
 
     data.push(vx)
-    data.push(0)
+    data.push(vy)
   }
 
   return new Float32Array(data)
@@ -120,6 +105,52 @@ const bindPositionBuffer = (gl, program, vao, buffer) => {
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
   gl.enableVertexAttribArray(positionAttrib);
   gl.vertexAttribPointer(positionAttrib, 2, gl.FLOAT, false, toBytes(4), toBytes(0));
+}
+
+const calcTimeDelta = (oldTimestamp, newTimestamp) => {
+  if (typeof oldTimestamp === 'undefined') return 0;
+  return newTimestamp - oldTimestamp;
+}
+
+const render = (gl, state, timestamp) => {
+  const timeDelta = calcTimeDelta(state.oldTimestamp, timestamp)
+  state.oldTimestamp = timestamp
+
+  // Update
+  gl.useProgram(state.update.program)
+  gl.uniform1f(state.update.attribs.timeDelta, timeDelta / 1000.0);
+  gl.bindVertexArray(state.update.read.vao);
+
+  gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, state.update.write.buffer)
+  gl.enable(gl.RASTERIZER_DISCARD);
+  gl.beginTransformFeedback(gl.POINTS);
+  gl.drawArrays(gl.POINTS, 0, state.particlesCount);
+  gl.endTransformFeedback();
+  gl.disable(gl.RASTERIZER_DISCARD);
+  gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, null);
+
+  // Render
+  gl.clearColor(0, 0, 0, 0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+
+  gl.useProgram(state.render.program);
+  gl.bindVertexArray(state.render.read.vao);
+  gl.drawArrays(gl.POINTS, 0, state.particlesCount);
+
+  // for (let i = 0; i < state.particlesCount; i++) {
+  //   const debug = gl.getVertexAttrib(i, gl.CURRENT_VERTEX_ATTRIB)
+  //   console.log('postrender', i, debug)
+  // }
+
+  const renderTmp = state.render.write
+  state.render.write = state.render.read
+  state.render.read = renderTmp
+
+  const updateTmp = state.update.write
+  state.update.write = state.update.read
+  state.update.read = updateTmp
+
+  requestAnimationFrame((timestamp) => render(gl, state, timestamp))
 }
 
 
@@ -156,13 +187,37 @@ const main = async () => {
   const writeRenderVao = gl.createVertexArray()
   bindPositionBuffer(gl, renderProgram, writeRenderVao, buffer1)
 
+  gl.bindBuffer(gl.ARRAY_BUFFER, null)
+
   const state = {
-    renderProgram,
-    particlesCount,
-    vaos: {
-      render: {read: readRenderVao, write: writeRenderVao},
-      update: {read: readUpdateVao, write: writeUpdateVao},
+    render: {
+      program: renderProgram,
+      attribs: {},
+      read: {
+        vao: readRenderVao,
+        buffer: buffer2,
+      },
+      write: {
+        vao: writeRenderVao,
+        buffer: buffer1,
+      }
     },
+    update: {
+      program: updateProgram,
+      attribs: {
+        timeDelta: gl.getUniformLocation(updateProgram, "timeDelta"),
+      },
+      read: {
+        vao: readUpdateVao,
+        buffer: buffer1,
+      },
+      write: {
+        vao: writeUpdateVao,
+        buffer: buffer2,
+      }
+    },
+    particlesCount,
+    oldTimestamp: undefined,
   }
 
   requestAnimationFrame((timeDelta) => render(gl, state, timeDelta) )

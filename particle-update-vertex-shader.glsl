@@ -5,9 +5,6 @@ precision mediump float;
    update step. */
 uniform float timeDelta;
 
-/* This is the point from which all newborn particles start their movement. */
-uniform vec2 origin;
-
 /* Inputs. These reflect the state of a single particle before the update. */
 
 /* Where the particle is. */
@@ -22,6 +19,9 @@ out vec2 outPosition;
 out vec2 outVelocity;
 
 void main() {
-   outPosition = inPosition + inVelocity * timeDelta;
+   outPosition = inPosition + (inVelocity * timeDelta);
+   outVelocity = inVelocity;
+   // outPosition = inPosition + inVelocity * timeDelta;
+   // outVelocity = outVelocity;
 }
 
