@@ -13,7 +13,7 @@ uniform vec2 origin;
 /* Where the particle is. */
 in vec2 inPosition;
 
-/* Which direction it is moving, and how fast. */ 
+/* Which direction it is moving, and how fast. */
 in vec2 inVelocity;
 
 /* Outputs. These mirror the inputs. These values will be captured
