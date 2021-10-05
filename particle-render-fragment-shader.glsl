@@ -2,8 +2,8 @@
 precision mediump float;
 
 in vec4 vPosition;
-out vec4 outColor;
 
+out vec4 outColor;
 
 void main() {
   outColor = vPosition;

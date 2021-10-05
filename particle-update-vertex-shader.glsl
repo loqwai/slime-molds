@@ -21,6 +21,9 @@ out vec2 outVelocity;
 void main() {
    outPosition = inPosition + (inVelocity * timeDelta);
    outVelocity = inVelocity;
+
+   gl_PointSize = 1.0;
+   gl_Position = vec4(outPosition, 0, 1.0);
    // outPosition = inPosition + inVelocity * timeDelta;
    // outVelocity = outVelocity;
 }
