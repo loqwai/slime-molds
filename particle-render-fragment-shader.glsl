@@ -1,8 +1,10 @@
 #version 300 es
 precision mediump float;
 
-out vec4 o_FragColor;
+in vec4 vPosition;
+out vec4 outColor;
+
 
 void main() {
-  o_FragColor = vec4(1.0);
+  outColor = vPosition;
 }

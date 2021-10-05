@@ -59,40 +59,42 @@ const createRenderProgram = async (gl) => {
 const createInitialData = (n) => {
   const data = []
 
-  for (let i = 0; i < n; i++){
-    // position
+  const maxX = Math.sqrt(n);
+  const maxY = Math.sqrt(n);
 
-    const x = ((i / n) * 2) - 1 // -1 <= x <= 1
+  for (let x = 0; x < maxX; x++) {
+    for (let y = 0; y < maxY; y++) {
+      const posX = (2 * x / maxX) - 1
+      const posY = (2 * y / maxY) - 1
 
-    data.push(x)
-    data.push(x)
+      const velX = -0.5 * posX
+      const velY = -0.5 * posY
 
-    // // velocity
-    const vx = 0.1 * (-1 * ((i / n) * 2) - 1)
-    const vy = -0.5 * (i / n)
-
-    data.push(vx)
-    data.push(vy)
+      data.push(posX)
+      data.push(posY)
+      data.push(velX)
+      data.push(velY)
+    }
   }
 
-  return new Float32Array(data)
+  return data
 }
 
 const bindUpdateBuffer = (gl, program, vao, buffer) => {
   const b = Float32Array.BYTES_PER_ELEMENT
 
-  const updatePositionAttrib = gl.getAttribLocation(program, 'inPosition')
-  const updateVelocityAttrib = gl.getAttribLocation(program, 'inVelocity')
+  const positionAttrib = gl.getAttribLocation(program, 'inPosition')
+  const velocityAttrib = gl.getAttribLocation(program, 'inVelocity')
 
   gl.bindVertexArray(vao);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
-  gl.enableVertexAttribArray(updatePositionAttrib);
-  gl.vertexAttribPointer(updatePositionAttrib, 2, gl.FLOAT, false, toBytes(4), 0);
+  gl.enableVertexAttribArray(positionAttrib);
+  gl.vertexAttribPointer(positionAttrib, 2, gl.FLOAT, false, toBytes(4), 0);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
-  gl.enableVertexAttribArray(updateVelocityAttrib);
-  gl.vertexAttribPointer(updateVelocityAttrib, 2, gl.FLOAT, false, toBytes(4), toBytes(2));
+  gl.enableVertexAttribArray(velocityAttrib);
+  gl.vertexAttribPointer(velocityAttrib, 2, gl.FLOAT, false, toBytes(4), toBytes(2));
 }
 
 const toBytes = (n) => n * Float32Array.BYTES_PER_ELEMENT
@@ -113,6 +115,8 @@ const calcTimeDelta = (oldTimestamp, newTimestamp) => {
 }
 
 const render = (gl, state, timestamp) => {
+  state.frameCount += 1
+
   const timeDelta = calcTimeDelta(state.oldTimestamp, timestamp)
   state.oldTimestamp = timestamp
 
@@ -137,11 +141,6 @@ const render = (gl, state, timestamp) => {
   gl.bindVertexArray(state.render.read.vao);
   gl.drawArrays(gl.POINTS, 0, state.particlesCount);
 
-  // for (let i = 0; i < state.particlesCount; i++) {
-  //   const debug = gl.getVertexAttrib(i, gl.CURRENT_VERTEX_ATTRIB)
-  //   console.log('postrender', i, debug)
-  // }
-
   const renderTmp = state.render.write
   state.render.write = state.render.read
   state.render.read = renderTmp
@@ -150,9 +149,13 @@ const render = (gl, state, timestamp) => {
   state.update.write = state.update.read
   state.update.read = updateTmp
 
+  if (state.frameCount % 10 === 0) {
+    const fps = Math.round(1 / (timeDelta / 1000))
+    document.getElementById('fps').innerText = `FPS: ${fps}`;
+  }
+
   requestAnimationFrame((timestamp) => render(gl, state, timestamp))
 }
-
 
 const main = async () => {
   const canvas = document.getElementById('canvas')
@@ -161,16 +164,24 @@ const main = async () => {
   initAutoResize(canvas)
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-  const particlesCount = 100
+  const particlesCount = 10000
   const initialData = createInitialData(particlesCount)
 
   const buffer1 = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer1)
-  gl.bufferData(gl.ARRAY_BUFFER, initialData, gl.STATIC_DRAW)
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(initialData), gl.DYNAMIC_DRAW)
 
   const buffer2 = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer2)
-  gl.bufferData(gl.ARRAY_BUFFER, initialData, gl.STATIC_DRAW)
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(initialData), gl.DYNAMIC_DRAW)
+
+  const sporeTexture1 = gl.createTexture()
+  gl.bindTexture(gl.TEXTURE_2D, sporeTexture1)
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 10, 10, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4 * 100))
+
+  const sporeTexture2 = gl.createTexture()
+  gl.bindTexture(gl.TEXTURE_3D, sporeTexture2)
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 10, 10, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4 * 100))
 
   const updateProgram = await createUpdateProgram(gl)
   const renderProgram = await createRenderProgram(gl)
@@ -210,14 +221,17 @@ const main = async () => {
       read: {
         vao: readUpdateVao,
         buffer: buffer1,
+        sporeTexture: sporeTexture1,
       },
       write: {
         vao: writeUpdateVao,
         buffer: buffer2,
+        sporeTexture: sporeTexture2,
       }
     },
     particlesCount,
     oldTimestamp: undefined,
+    frameCount: 0,
   }
 
   requestAnimationFrame((timeDelta) => render(gl, state, timeDelta) )

@@ -1,14 +1,15 @@
-/* https://coolors.co/ef476f-ffd166-06d6a0-118ab2-073b4c 
+/* https://coolors.co/ef476f-ffd166-06d6a0-118ab2-073b4c
 
 paradise-pink: #ef476f;
 orange-yellow-crayola: #ffd166;
 caribbean-green: #06d6a0;
 blue-ncs: #118ab2;
-midnight-green-eagle-green: #073b4c; 
+midnight-green-eagle-green: #073b4c;
 */
 
 html, body, #root {
   background-color: #073b4c;
+  font-family: Arial, Helvetica, sans-serif;
   height: 100%;
   width: 100%;
 
@@ -19,4 +20,11 @@ html, body, #root {
 canvas {
   width: 100%;
   height: 100%;
+}
+
+#fps {
+  position: absolute;
+  color: white;
+  left: 10px;
+  top: 10px;
 }
