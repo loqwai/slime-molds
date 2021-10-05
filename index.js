@@ -241,7 +241,7 @@ const main = async () => {
   initAutoResize(canvas)
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-  const particlesCount = 16
+  const particlesCount = Math.pow(10, 2)
   const initialData = createInitialData(particlesCount)
   console.log('initialData', initialData)
 
