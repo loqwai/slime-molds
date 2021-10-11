@@ -74,23 +74,27 @@ const createRenderProgram = async (gl) => {
 }
 
 const createInitialData = (n) => {
+  console.log('createInitialData')
   const data = []
 
-  const maxX = Math.sqrt(n) - 1;
-  const maxY = Math.sqrt(n) - 1;
+  const maxX = Math.sqrt(n);
+  const maxY = Math.sqrt(n);
 
-  for (let x = 0; x <= maxX; x++) {
-    for (let y = 0; y <= maxY; y++) {
+  for (let x = 0; x < maxX; x++) {
+    for (let y = 0; y < maxY; y++) {
+      console.log('point', x, y)
       const posX = (2 * x / maxX) - 1
       const posY = (2 * y / maxY) - 1
 
       const velX = -0.1 * posX
       const velY = -0.1 * posY
 
+      const velMagnitude = Math.sqrt((velX * velX) + (velY * velY))
+
       data.push(posX)
       data.push(posY)
-      data.push(velX)
-      data.push(velY)
+      data.push(0.1 * (isNaN(velX / velMagnitude) ? 0 : velX / velMagnitude))
+      data.push(0.1 * (isNaN(velY / velMagnitude) ? 0 : velY / velMagnitude))
     }
   }
 
@@ -98,8 +102,6 @@ const createInitialData = (n) => {
 }
 
 const bindUpdateBuffer = (gl, program, vao, buffer) => {
-  const b = Float32Array.BYTES_PER_ELEMENT
-
   const positionAttrib = gl.getAttribLocation(program, 'inPosition')
   const velocityAttrib = gl.getAttribLocation(program, 'inVelocity')
 
@@ -241,13 +243,16 @@ const main = async () => {
   initAutoResize(canvas)
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-  const particlesCount = Math.pow(10, 2)
+  // const particlesCount = Math.pow(101, 2)
+  const particlesCount = 100
   const initialData = createInitialData(particlesCount)
-  console.log('initialData', initialData)
+  console.log('initialData', initialData.length)
 
   const buffer1 = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer1)
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(initialData), gl.DYNAMIC_DRAW)
+  console.log('buffer1', gl.getBufferParameter(gl.ARRAY_BUFFER, gl.BUFFER_SIZE))
+
 
   const buffer2 = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer2)
