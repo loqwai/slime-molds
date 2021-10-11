@@ -1,4 +1,8 @@
 import { initAutoResize } from "./resize.js";
+import { createInitialData, extractPositions } from "./createInitialData.js";
+
+const PARTICLES_COUNT = 100 * 100
+const TEXTURE_SIZE = 512
 
 const fetchShader = async (filename)  => (await fetch(filename)).text()
 
@@ -15,12 +19,12 @@ const createShader = async (gl, type, filename) => {
   return shader;
 }
 
-const getSporeTextureVertexShader = async (gl) => createShader(gl, gl.VERTEX_SHADER, 'spore-texture-vertex-shader.glsl')
-const getSporeTextureFragmentShader = async (gl) => createShader(gl, gl.FRAGMENT_SHADER, 'spore-texture-fragment-shader.glsl')
-const getParticleUpdateVertexShader = async (gl) => createShader(gl, gl.VERTEX_SHADER, 'particle-update-vertex-shader.glsl')
-const getParticleUpdateFragmentShader = async (gl) => createShader(gl, gl.FRAGMENT_SHADER, 'particle-update-fragment-shader.glsl')
-const getParticleRenderVertexShader = async (gl) => createShader(gl, gl.VERTEX_SHADER, 'particle-render-vertex-shader.glsl')
-const getParticleRenderFragmentShader = async (gl) => createShader(gl, gl.FRAGMENT_SHADER, 'particle-render-fragment-shader.glsl')
+const getSporeTextureVertexShader = async (gl) => createShader(gl, gl.VERTEX_SHADER, './src/shaders/spore-texture-vertex-shader.glsl')
+const getSporeTextureFragmentShader = async (gl) => createShader(gl, gl.FRAGMENT_SHADER, './src/shaders/spore-texture-fragment-shader.glsl')
+const getParticleUpdateVertexShader = async (gl) => createShader(gl, gl.VERTEX_SHADER, './src/shaders/particle-update-vertex-shader.glsl')
+const getParticleUpdateFragmentShader = async (gl) => createShader(gl, gl.FRAGMENT_SHADER, './src/shaders/particle-update-fragment-shader.glsl')
+const getParticleRenderVertexShader = async (gl) => createShader(gl, gl.VERTEX_SHADER, './src/shaders/particle-render-vertex-shader.glsl')
+const getParticleRenderFragmentShader = async (gl) => createShader(gl, gl.FRAGMENT_SHADER, './src/shaders/particle-render-fragment-shader.glsl')
 
 const createSporeTextureProgram = async (gl) => {
   const program = gl.createProgram()
@@ -71,34 +75,6 @@ const createRenderProgram = async (gl) => {
     throw new Error(`Could not link render program. ${gl.getProgramInfoLog(program)}\n`);
   }
   return program;
-}
-
-const createInitialData = (n) => {
-  console.log('createInitialData')
-  const data = []
-
-  const maxX = Math.sqrt(n);
-  const maxY = Math.sqrt(n);
-
-  for (let x = 0; x < maxX; x++) {
-    for (let y = 0; y < maxY; y++) {
-      console.log('point', x, y)
-      const posX = (2 * x / maxX) - 1
-      const posY = (2 * y / maxY) - 1
-
-      const velX = -0.1 * posX
-      const velY = -0.1 * posY
-
-      const velMagnitude = Math.sqrt((velX * velX) + (velY * velY))
-
-      data.push(posX)
-      data.push(posY)
-      data.push(0.1 * (isNaN(velX / velMagnitude) ? 0 : velX / velMagnitude))
-      data.push(0.1 * (isNaN(velY / velMagnitude) ? 0 : velY / velMagnitude))
-    }
-  }
-
-  return data
 }
 
 const bindUpdateBuffer = (gl, program, vao, buffer) => {
@@ -237,16 +213,14 @@ const render = (gl, state, timestamp) => {
 const main = async () => {
   const canvas = document.getElementById('canvas')
   const gl = canvas.getContext("webgl2")
-  const sporeTextureWidth = 512;
+  const sporeTextureWidth = TEXTURE_SIZE;
   const sporeTextureHeight = sporeTextureWidth;
 
   initAutoResize(canvas)
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-  // const particlesCount = Math.pow(101, 2)
-  const particlesCount = 100
-  const initialData = createInitialData(particlesCount)
-  console.log('initialData', initialData.length)
+  const initialData = createInitialData(PARTICLES_COUNT)
+  console.log('initialData', extractPositions(initialData))
 
   const buffer1 = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer1)
@@ -359,7 +333,7 @@ const main = async () => {
         sporeTexture: sporeTexture2,
       }
     },
-    particlesCount,
+    particlesCount: PARTICLES_COUNT,
     oldTimestamp: undefined,
     frameCount: 0,
   }
