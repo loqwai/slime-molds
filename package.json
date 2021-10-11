@@ -1,0 +1,15 @@
+{
+  "name": "slime-molds",
+  "version": "1.0.0",
+  "description": "Simulating slime-molds on the GPU in WebGL",
+  "main": "index.js",
+  "repository": "https://github.com/loqwai/slime-molds.git",
+  "author": "Roy van de Water <roy.v.water@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "http-server -c-1 -p 3000"
+  },
+  "dependencies": {
+    "http-server": "^13.0.2"
+  }
+}
