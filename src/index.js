@@ -125,6 +125,19 @@ const calcTimeDelta = (oldTimestamp, newTimestamp) => {
   return newTimestamp - oldTimestamp;
 }
 
+const tagObject = (gl, obj, tag) => {
+  const ext = gl.getExtension('GMAN_debug_helper');
+  if (!ext) return;
+  ext.tagObject(obj, tag);
+}
+
+/**
+ * 
+ * @param {WebGLRenderingContext} gl 
+ * @param {*} state 
+ * @param {*} timestamp 
+ * @returns 
+ */
 const render = (gl, state, timestamp) => {
   state.frameCount += 1
 
@@ -142,9 +155,11 @@ const render = (gl, state, timestamp) => {
     gl.uniform1f(state.update.attribs.timeDelta, timeDelta / 1000.0);
     gl.uniform1i(state.update.attribs.frameCount, state.frameCount);
     gl.uniform1i(state.update.attribs.sporeInterval, state.sporeInterval);
+    gl.bindTexture(gl.TEXTURE_2D, state.update.read.sporeTexture);
 
     // Bind our output texture
     const fb = gl.createFramebuffer();
+    tagObject(gl, fb, "output texture")
     gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, state.update.write.sporeTexture, 0);
 
@@ -169,7 +184,7 @@ const render = (gl, state, timestamp) => {
 
     // Cleanup
     gl.endTransformFeedback();
-    // gl.disable(gl.RASTERIZER_DISCARD);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, null, 0);
     gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, null);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
@@ -187,6 +202,7 @@ const render = (gl, state, timestamp) => {
     gl.bindTexture(gl.TEXTURE_2D, state.render.write.sporeTexture);
     gl.bindVertexArray(state.sporeTexture.vao);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
+    gl.bindTexture(gl.TEXTURE_2D, null);
   }
 
   // // Render particles to Screen
@@ -223,12 +239,10 @@ const main = async () => {
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
   const initialData = createInitialData(PARTICLES_COUNT)
-  console.log('initialData', extractPositions(initialData))
 
   const buffer1 = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer1)
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(initialData), gl.DYNAMIC_DRAW)
-  console.log('buffer1', gl.getBufferParameter(gl.ARRAY_BUFFER, gl.BUFFER_SIZE))
 
 
   const buffer2 = gl.createBuffer()
@@ -260,6 +274,7 @@ const main = async () => {
   ]), gl.STATIC_DRAW) // Two triangles covering the entire screen
 
   const sporeTexture1 = gl.createTexture()
+  tagObject(gl, sporeTexture1, "sporeTexture1")
   gl.bindTexture(gl.TEXTURE_2D, sporeTexture1)
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, sporeTextureWidth, sporeTextureHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4 * sporeTextureWidth * sporeTextureHeight))
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
@@ -268,6 +283,7 @@ const main = async () => {
   gl.bindTexture(gl.TEXTURE_2D, null)
 
   const sporeTexture2 = gl.createTexture()
+  tagObject(gl, sporeTexture2, "sporeTexture2")
   gl.bindTexture(gl.TEXTURE_2D, sporeTexture2)
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, sporeTextureWidth, sporeTextureHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4 * sporeTextureWidth * sporeTextureHeight))
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
@@ -278,20 +294,28 @@ const main = async () => {
   const sporeTextureProgram = await createSporeTextureProgram(gl)
   const updateProgram = await createUpdateProgram(gl)
   const renderProgram = await createRenderProgram(gl)
+  tagObject(gl, sporeTextureProgram, "sporeTextureProgram")
+  tagObject(gl, updateProgram, "updateProgram")
+  tagObject(gl, renderProgram, "renderProgram")
 
   const readUpdateVao = gl.createVertexArray()
+  tagObject(gl, readUpdateVao, "readUpdateVao")
   bindUpdateBuffer(gl, updateProgram, readUpdateVao, buffer1)
 
   const writeUpdateVao = gl.createVertexArray()
+  tagObject(gl, writeUpdateVao, "writeUpdateVao")
   bindUpdateBuffer(gl, updateProgram, writeUpdateVao, buffer2)
 
   const readRenderVao = gl.createVertexArray()
+  tagObject(gl, readRenderVao, "readRenderVao")
   bindPositionBuffer(gl, renderProgram, readRenderVao, buffer2)
 
   const writeRenderVao = gl.createVertexArray()
+  tagObject(gl, writeRenderVao, "writeRenderVao")
   bindPositionBuffer(gl, renderProgram, writeRenderVao, buffer1)
 
   const sporeTextureVao = gl.createVertexArray()
+  tagObject(gl, sporeTextureVao, "sporeTextureVao")
   bindSporeTextureBuffer(gl, sporeTextureProgram, sporeTextureVao, sporeTextureVertexBuffer, sporeTextureTexcoordBuffer)
 
   gl.bindBuffer(gl.ARRAY_BUFFER, null)

@@ -1,26 +1,32 @@
 #version 300 es
 precision mediump float;
 
-/* Number of seconds (possibly fractional) that has passed since the last
-   update step. */
-uniform float timeDelta;
+uniform float timeDelta; // in seconds
+uniform sampler2D uSpores;
 
-/* Inputs. These reflect the state of a single particle before the update. */
-
-/* Where the particle is. */
 in vec2 inPosition;
-
-/* Which direction it is moving, and how fast. */
 in vec2 inVelocity;
 
-/* Outputs. These mirror the inputs. These values will be captured
-   into our transform feedback buffer! */
 out vec2 outPosition;
 out vec2 outVelocity;
 
 void main() {
-   outPosition = inPosition + (inVelocity * timeDelta);
-   outVelocity = inVelocity;
+   vec2 v = inVelocity;
+   vec2 leftVelocity  = vec2( v.y, -v.x);
+   vec2 rightVelocity = vec2(-v.y,  v.x);
+
+   vec4 left = texture(uSpores, inPosition + (leftVelocity * timeDelta));
+   vec4 right = texture(uSpores, inPosition + (rightVelocity * timeDelta));
+
+   if (left == vec4(1)) {
+      outVelocity = leftVelocity;
+   } else if (right == vec4(1)) {
+      outVelocity = rightVelocity;
+   } else {
+      outVelocity = inVelocity;
+   }
+
+   outPosition = inPosition + (outVelocity * timeDelta);
 
    gl_PointSize = 1.0;
    gl_Position = vec4(outPosition, 0, 1.0);
