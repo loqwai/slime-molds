@@ -1,10 +1,6 @@
-
 const times = (n) => [...new Array(n).keys()]
 
 export const createPoint = (n, i) => {
-  // n: 100
-  // i: 10
-  
   const max = Math.ceil(Math.sqrt(n)) // 10
   const x = Math.floor(i / max) // 1
   const y = Math.floor(i % max) // 0
@@ -19,8 +15,8 @@ export const createPoint = (n, i) => {
   return [
     posX,
     posY,
-    0.1 * (isNaN(velX / velMagnitude) ? 0 : velX / velMagnitude),
-    0.1 * (isNaN(velY / velMagnitude) ? 0 : velY / velMagnitude),
+    0.5 * (isNaN(velX / velMagnitude) ? 0 : velX / velMagnitude),
+    0.5 * (isNaN(velY / velMagnitude) ? 0 : velY / velMagnitude),
   ]
 }
 

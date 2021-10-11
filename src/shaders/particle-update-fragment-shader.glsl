@@ -3,6 +3,13 @@ precision mediump float;
 
 out vec4 outColor;
 
+uniform int frameCount;
+uniform int sporeInterval;
+
 void main() {
-  outColor = vec4(0.7, 0.7, 0.7, 1.0);
+  if (frameCount % sporeInterval == 0) {
+    outColor = vec4(1.0);
+  } else {
+    outColor = vec4(0);
+  }
  }

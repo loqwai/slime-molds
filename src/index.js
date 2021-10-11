@@ -1,8 +1,9 @@
 import { initAutoResize } from "./resize.js";
 import { createInitialData, extractPositions } from "./createInitialData.js";
 
-const PARTICLES_COUNT = 100 * 100
+const PARTICLES_COUNT = 3
 const TEXTURE_SIZE = 512
+const SPORE_INTERVAL = 10
 
 const fetchShader = async (filename)  => (await fetch(filename)).text()
 
@@ -139,6 +140,8 @@ const render = (gl, state, timestamp) => {
     // Bind our program
     gl.useProgram(state.update.program)
     gl.uniform1f(state.update.attribs.timeDelta, timeDelta / 1000.0);
+    gl.uniform1i(state.update.attribs.frameCount, state.frameCount);
+    gl.uniform1i(state.update.attribs.sporeInterval, state.sporeInterval);
 
     // Bind our output texture
     const fb = gl.createFramebuffer();
@@ -320,6 +323,8 @@ const main = async () => {
     update: {
       program: updateProgram,
       attribs: {
+        frameCount: gl.getUniformLocation(updateProgram, "frameCount"),
+        sporeInterval: gl.getUniformLocation(updateProgram, "sporeInterval"),
         timeDelta: gl.getUniformLocation(updateProgram, "timeDelta"),
       },
       read: {
@@ -334,6 +339,7 @@ const main = async () => {
       }
     },
     particlesCount: PARTICLES_COUNT,
+    sporeInterval: SPORE_INTERVAL,
     oldTimestamp: undefined,
     frameCount: 0,
   }
