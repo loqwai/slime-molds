@@ -28,7 +28,7 @@ void main() {
 
    outPosition = inPosition + (outVelocity * timeDelta);
 
-   gl_PointSize = 1.0;
+   gl_PointSize = 2.0; // spore size
    gl_Position = vec4(outPosition, 0, 1.0);
    // outPosition = inPosition + inVelocity * timeDelta;
    // outVelocity = outVelocity;

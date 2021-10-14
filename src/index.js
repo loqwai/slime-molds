@@ -1,9 +1,9 @@
 import { initAutoResize } from "./resize.js";
 import { createInitialData, extractPositions } from "./createInitialData.js";
 
-const PARTICLES_COUNT = 3
+const PARTICLES_COUNT = 10000
 const TEXTURE_SIZE = 512
-const SPORE_INTERVAL = 10
+const SPORE_INTERVAL = 11
 
 const fetchShader = async (filename)  => (await fetch(filename)).text()
 
@@ -132,11 +132,11 @@ const tagObject = (gl, obj, tag) => {
 }
 
 /**
- * 
- * @param {WebGLRenderingContext} gl 
- * @param {*} state 
- * @param {*} timestamp 
- * @returns 
+ *
+ * @param {WebGLRenderingContext} gl
+ * @param {*} state
+ * @param {*} timestamp
+ * @returns
  */
 const render = (gl, state, timestamp) => {
   state.frameCount += 1
@@ -144,9 +144,9 @@ const render = (gl, state, timestamp) => {
   const timeDelta = calcTimeDelta(state.oldTimestamp, timestamp)
   state.oldTimestamp = timestamp
 
-  if (timeDelta > 60) {
-    return requestAnimationFrame((timestamp) => render(gl, state, timestamp))
-  }
+  // if (timeDelta > 60) {
+  //   return requestAnimationFrame((timestamp) => render(gl, state, timestamp))
+  // }
 
   // Update
   {
@@ -196,7 +196,7 @@ const render = (gl, state, timestamp) => {
     gl.clear(gl.COLOR_BUFFER_BIT);
   }
 
-  // Render spore texture to Screen
+  // // Render spore texture to Screen
   {
     gl.useProgram(state.sporeTexture.program);
     gl.bindTexture(gl.TEXTURE_2D, state.render.write.sporeTexture);
@@ -205,7 +205,7 @@ const render = (gl, state, timestamp) => {
     gl.bindTexture(gl.TEXTURE_2D, null);
   }
 
-  // // Render particles to Screen
+  // Render particles to Screen
   {
     gl.useProgram(state.render.program);
     gl.bindVertexArray(state.render.read.vao);
@@ -221,12 +221,13 @@ const render = (gl, state, timestamp) => {
   state.update.write = state.update.read
   state.update.read = updateTmp
 
-  if (state.frameCount % 10 === 0) {
+  // if (state.frameCount % 10 === 0) {
     const fps = Math.round(1 / (timeDelta / 1000))
     document.getElementById('fps').innerText = `FPS: ${fps}`;
-  }
+  // }
 
   requestAnimationFrame((timestamp) => render(gl, state, timestamp))
+  // setTimeout(() => render(gl, state, performance.now()), 1000/8)
 }
 
 const main = async () => {

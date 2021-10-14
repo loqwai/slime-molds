@@ -8,15 +8,15 @@ export const createPoint = (n, i) => {
   const posX = (2 * x / Math.max(1, (max - 1))) - 1 // (2 * 1 / 10) - 1 === 0.2 - 1 === -0.8
   const posY = (2 * y / Math.max(1, (max - 1))) - 1 // (2 * 0 / 10) - 1 === 0   - 1 === -1
 
-  const velX = -0.1 * posX 
+  const velX = -0.1 * posX
   const velY = -0.1 * posY
   const velMagnitude = Math.sqrt((velX * velX) + (velY * velY))
 
   return [
     posX,
     posY,
-    0.5 * (isNaN(velX / velMagnitude) ? 0 : velX / velMagnitude),
-    0.5 * (isNaN(velY / velMagnitude) ? 0 : velY / velMagnitude),
+    0.1 * (isNaN(velX / velMagnitude) ? 0 : velX / velMagnitude),
+    0.1 * (isNaN(velY / velMagnitude) ? 0 : velY / velMagnitude),
   ]
 }
 
