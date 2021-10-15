@@ -3,6 +3,7 @@ precision mediump float;
 
 uniform float timeDelta; // in seconds
 uniform sampler2D uSpores;
+uniform int sporeInterval;
 
 in vec2 inPosition;
 in vec2 inVelocity;
@@ -18,9 +19,9 @@ void main() {
    vec4 left = texture(uSpores, inPosition + (leftVelocity * timeDelta));
    vec4 right = texture(uSpores, inPosition + (rightVelocity * timeDelta));
 
-   if (left == vec4(1)) {
+   if (left.r > 0.0) {
       outVelocity = leftVelocity;
-   } else if (right == vec4(1)) {
+   } else if (right.r > 0.0) {
       outVelocity = rightVelocity;
    } else {
       outVelocity = inVelocity;
@@ -28,7 +29,7 @@ void main() {
 
    outPosition = inPosition + (outVelocity * timeDelta);
 
-   gl_PointSize = 2.0; // spore size
+   gl_PointSize = 1.0; // spore size
    gl_Position = vec4(outPosition, 0, 1.0);
    // outPosition = inPosition + inVelocity * timeDelta;
    // outVelocity = outVelocity;

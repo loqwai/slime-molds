@@ -6,5 +6,5 @@ in vec4 vPosition;
 out vec4 outColor;
 
 void main() {
-  outColor = vPosition;
+  outColor = vec4(0.93, 0.28, 0.43, 1.0);
 }

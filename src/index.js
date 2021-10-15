@@ -4,6 +4,7 @@ import { createInitialData, extractPositions } from "./createInitialData.js";
 const PARTICLES_COUNT = 10000
 const TEXTURE_SIZE = 512
 const SPORE_INTERVAL = 11
+const TARGET_FPS = 60
 
 const fetchShader = async (filename)  => (await fetch(filename)).text()
 
@@ -78,17 +79,17 @@ const createRenderProgram = async (gl) => {
   return program;
 }
 
-const bindUpdateBuffer = (gl, program, vao, buffer) => {
+const bindUpdateBuffer = (gl, program, vao, vertexBuffer) => {
   const positionAttrib = gl.getAttribLocation(program, 'inPosition')
   const velocityAttrib = gl.getAttribLocation(program, 'inVelocity')
 
   gl.bindVertexArray(vao);
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
   gl.enableVertexAttribArray(positionAttrib);
   gl.vertexAttribPointer(positionAttrib, 2, gl.FLOAT, false, toBytes(4), 0);
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
   gl.enableVertexAttribArray(velocityAttrib);
   gl.vertexAttribPointer(velocityAttrib, 2, gl.FLOAT, false, toBytes(4), toBytes(2));
 }
@@ -144,18 +145,12 @@ const render = (gl, state, timestamp) => {
   const timeDelta = calcTimeDelta(state.oldTimestamp, timestamp)
   state.oldTimestamp = timestamp
 
-  // if (timeDelta > 60) {
-  //   return requestAnimationFrame((timestamp) => render(gl, state, timestamp))
-  // }
+  if (TARGET_FPS > 20 && timeDelta > 60) {
+    return requestAnimationFrame((timestamp) => render(gl, state, timestamp))
+  }
 
   // Update
   {
-    // Bind our program
-    gl.useProgram(state.update.program)
-    gl.uniform1f(state.update.attribs.timeDelta, timeDelta / 1000.0);
-    gl.uniform1i(state.update.attribs.frameCount, state.frameCount);
-    gl.uniform1i(state.update.attribs.sporeInterval, state.sporeInterval);
-    gl.bindTexture(gl.TEXTURE_2D, state.update.read.sporeTexture);
 
     // Bind our output texture
     const fb = gl.createFramebuffer();
@@ -163,13 +158,32 @@ const render = (gl, state, timestamp) => {
     gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, state.update.write.sporeTexture, 0);
 
+    // enable blending of output (so that transparent particles show the spore texture instead)
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
     // Resize our viewport to match the output texture
     gl.viewport(0, 0, state.sporeTexture.width, state.sporeTexture.height)
+
+    // // Render spore texture to Screen
+    {
+      gl.useProgram(state.sporeTexture.program);
+      gl.bindTexture(gl.TEXTURE_2D, state.render.write.sporeTexture);
+      gl.bindVertexArray(state.sporeTexture.vao);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+    }
+
+    // Bind our update program
+    gl.useProgram(state.update.program)
+    gl.uniform1f(state.update.attribs.timeDelta, timeDelta / 1000.0);
+    gl.uniform1i(state.update.attribs.frameCount, state.frameCount);
+    gl.uniform1i(state.update.attribs.sporeInterval, state.sporeInterval);
+    gl.bindTexture(gl.TEXTURE_2D, state.update.read.sporeTexture);
 
     // Bind our particle data
     gl.bindVertexArray(state.update.read.vao); // input
     gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, state.update.write.buffer) // output
-    // gl.enable(gl.RASTERIZER_DISCARD);
     gl.beginTransformFeedback(gl.POINTS);
 
     // Actually Run the Shader
@@ -183,6 +197,7 @@ const render = (gl, state, timestamp) => {
     // }
 
     // Cleanup
+    gl.disable(gl.BLEND);
     gl.endTransformFeedback();
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, null, 0);
     gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, null);
@@ -226,8 +241,11 @@ const render = (gl, state, timestamp) => {
     document.getElementById('fps').innerText = `FPS: ${fps}`;
   // }
 
-  requestAnimationFrame((timestamp) => render(gl, state, timestamp))
-  // setTimeout(() => render(gl, state, performance.now()), 1000/8)
+  if (TARGET_FPS === 60) {
+    requestAnimationFrame((timestamp) => render(gl, state, timestamp))
+  } else {
+    setTimeout(() => render(gl, state, performance.now()), 1000 / TARGET_FPS)
+  }
 }
 
 const main = async () => {

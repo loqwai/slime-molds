@@ -15,8 +15,8 @@ export const createPoint = (n, i) => {
   return [
     posX,
     posY,
-    0.1 * (isNaN(velX / velMagnitude) ? 0 : velX / velMagnitude),
-    0.1 * (isNaN(velY / velMagnitude) ? 0 : velY / velMagnitude),
+    0.3 * (isNaN(velX / velMagnitude) ? 0 : velX / velMagnitude),
+    0.3 * (isNaN(velY / velMagnitude) ? 0 : velY / velMagnitude),
   ]
 }
 
