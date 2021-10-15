@@ -1,6 +1,8 @@
 #version 300 es
 precision mediump float;
 
+float fadeRate = 0.05;
+
 uniform sampler2D uTexture;
 
 in vec2 vTexcoord;
@@ -8,5 +10,5 @@ in vec2 vTexcoord;
 out vec4 outColor;
 
 void main() {
-  outColor = texture(uTexture, vTexcoord);
+  outColor = texture(uTexture, vTexcoord) - fadeRate;
 }

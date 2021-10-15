@@ -2,9 +2,11 @@ import { initAutoResize } from "./resize.js";
 import { createInitialData, extractPositions } from "./createInitialData.js";
 
 const PARTICLES_COUNT = 10000
-const TEXTURE_SIZE = 512
-const SPORE_INTERVAL = 11
+const TEXTURE_SIZE = 2048
+const SPORE_INTERVAL = 1
 const TARGET_FPS = 60
+const RENDER_SPORES = true;
+const RENDER_PARTICLES = true;
 
 const fetchShader = async (filename)  => (await fetch(filename)).text()
 
@@ -212,7 +214,7 @@ const render = (gl, state, timestamp) => {
   }
 
   // // Render spore texture to Screen
-  {
+  if (RENDER_SPORES) {
     gl.useProgram(state.sporeTexture.program);
     gl.bindTexture(gl.TEXTURE_2D, state.render.write.sporeTexture);
     gl.bindVertexArray(state.sporeTexture.vao);
@@ -221,7 +223,7 @@ const render = (gl, state, timestamp) => {
   }
 
   // Render particles to Screen
-  {
+  if (RENDER_PARTICLES) {
     gl.useProgram(state.render.program);
     gl.bindVertexArray(state.render.read.vao);
     gl.drawArrays(gl.POINTS, 0, state.particlesCount);
