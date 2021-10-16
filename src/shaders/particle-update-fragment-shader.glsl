@@ -8,7 +8,7 @@ in vec2 vTexcoord;
 
 out vec4 outColor;
 
-int attractSwitchInterval = 300; // Every N frames, we'll switch between attract and repel
+int attractSwitchInterval = 600; // Every N frames, we'll switch between attract and repel
 
 void main() {
   if (frameCount % sporeInterval == 0) {

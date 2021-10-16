@@ -1,7 +1,7 @@
 import { initAutoResize } from "./resize.js";
 import { createInitialData, extractPositions } from "./createInitialData.js";
 
-const PARTICLES_COUNT = 10000;
+const PARTICLES_COUNT = Math.pow(10, 4);
 const TEXTURE_SIZE = 2048
 const SPORE_INTERVAL = 1
 const TARGET_FPS = 60
@@ -240,10 +240,10 @@ const render = (gl, state, timestamp) => {
   state.update.write = state.update.read
   state.update.read = updateTmp
 
-  // if (state.frameCount % 10 === 0) {
+  if (state.frameCount % 10 === 0 || TARGET_FPS < 20) {
     const fps = Math.round(1 / (timeDelta / 1000))
     document.getElementById('fps').innerText = `FPS: ${fps}`;
-  // }
+  }
 
   if (TARGET_FPS === 60) {
     requestAnimationFrame((timestamp) => render(gl, state, timestamp))

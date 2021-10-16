@@ -16,7 +16,7 @@ float range = 1.0;
 int samples = 5;
 // bool attract = true; // particles turn towards spores when true, away when false
 
-int attractSwitchInterval = 300; // Every N frames, we'll switch between attract and repel
+int attractSwitchInterval = 600; // Every N frames, we'll switch between attract and repel
 
 void main() {
    float turnRate = 0.5 / float(samples);
@@ -61,7 +61,7 @@ void main() {
 
    outPosition = inPosition + (outVelocity * timeDelta);
 
-   gl_PointSize = 4.0; // spore size
+   gl_PointSize = 1.0; // spore size
    gl_Position = vec4(outPosition, 0, 1.0);
    // outPosition = inPosition + inVelocity * timeDelta;
    // outVelocity = outVelocity;
