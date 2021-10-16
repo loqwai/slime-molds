@@ -6,7 +6,7 @@ const TEXTURE_SIZE = 2048
 const SPORE_INTERVAL = 1
 const TARGET_FPS = 60
 const RENDER_SPORES = true;
-const RENDER_PARTICLES = true;
+const RENDER_PARTICLES = false;
 
 const fetchShader = async (filename)  => (await fetch(filename)).text()
 

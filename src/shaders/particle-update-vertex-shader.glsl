@@ -13,11 +13,13 @@ out vec2 outPosition;
 out vec2 outVelocity;
 
 float range = 1.0;
-int samples = 10;
-float turnRate = 0.03;
+int samples = 50;
+bool attract = false; // particles turn towards spores when true, away when false
 
 void main() {
+   float turnRate = 0.1 / float(samples);
    float rangePerSample = range / float(samples);
+
    vec2 v = inVelocity;
    float speed = length(v) / timeDelta;
 
@@ -37,10 +39,11 @@ void main() {
       rightSpores += right.r;
    }
 
-   if (leftSpores < rightSpores) {
-      outVelocity = ((1.0 - turnRate) * inVelocity) + (turnRate * rightVelocity);
+
+   if (attract) {
+      outVelocity = ((1.0 - turnRate) * inVelocity) + (turnRate * leftSpores * leftVelocity) + (turnRate * rightSpores * rightVelocity);
    } else {
-      outVelocity = ((1.0 - turnRate) * inVelocity) + (turnRate * leftVelocity);
+      outVelocity = ((1.0 - turnRate) * inVelocity) + (turnRate * leftSpores * rightVelocity) + (turnRate * rightSpores * leftVelocity);
    }
 
    outVelocity = 0.3 * normalize(outVelocity);
