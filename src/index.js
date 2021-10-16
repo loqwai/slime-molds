@@ -1,12 +1,12 @@
 import { initAutoResize } from "./resize.js";
 import { createInitialData, extractPositions } from "./createInitialData.js";
 
-const PARTICLES_COUNT = 10000
+const PARTICLES_COUNT = 10000;
 const TEXTURE_SIZE = 2048
 const SPORE_INTERVAL = 1
 const TARGET_FPS = 60
-const RENDER_SPORES = true;
 const RENDER_PARTICLES = false;
+const RENDER_SPORES = true;
 
 const fetchShader = async (filename)  => (await fetch(filename)).text()
 
@@ -163,6 +163,8 @@ const render = (gl, state, timestamp) => {
     // enable blending of output (so that transparent particles show the spore texture instead)
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_COLOR);
+    // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA)
 
     // Resize our viewport to match the output texture
     gl.viewport(0, 0, state.sporeTexture.width, state.sporeTexture.height)

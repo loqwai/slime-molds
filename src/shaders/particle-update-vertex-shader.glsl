@@ -4,7 +4,7 @@ precision mediump int;
 
 uniform float timeDelta; // in seconds
 uniform sampler2D uSpores;
-uniform int sporeInterval;
+uniform int frameCount;
 
 in vec2 inPosition;
 in vec2 inVelocity;
@@ -13,12 +13,19 @@ out vec2 outPosition;
 out vec2 outVelocity;
 
 float range = 1.0;
-int samples = 50;
-bool attract = false; // particles turn towards spores when true, away when false
+int samples = 5;
+// bool attract = true; // particles turn towards spores when true, away when false
+
+int attractSwitchInterval = 300; // Every N frames, we'll switch between attract and repel
 
 void main() {
-   float turnRate = 0.1 / float(samples);
+   float turnRate = 0.5 / float(samples);
    float rangePerSample = range / float(samples);
+
+   bool attract = (frameCount / attractSwitchInterval) % 2 == 0;
+   // if (frameCount % attractSwitchInterval == 0) {
+   //    attract = !attract;
+   // }
 
    vec2 v = inVelocity;
    float speed = length(v) / timeDelta;
