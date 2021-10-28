@@ -9,59 +9,88 @@ uniform int frameCount;
 in vec2 inPosition;
 in vec2 inVelocity;
 
+out vec4 vColor;
 out vec2 outPosition;
 out vec2 outVelocity;
 
-float range = 1.0;
-int samples = 5;
-// bool attract = true; // particles turn towards spores when true, away when false
+float sporeSize = 3.0;
+float minRange = 0.0; // should be greater than 1 / texture width
+float range = 0.1;
+float turnRate = 0.8;
+int samples = 10;
 
-int attractSwitchInterval = 600; // Every N frames, we'll switch between attract and repel
+bool onField(float n) {
+   return abs(n) <= 1.0;
+}
+
+vec2 rotate(vec2 v, float a) {
+	float s = sin(a);
+	float c = cos(a);
+	mat2 m = mat2(c, -s, s, c);
+	return m * v;
+}
+
+vec4 sanitize(vec4 v) {
+   return vec4(
+      min(v.r, 1.0),
+      min(v.g, 1.0),
+      min(v.b, 1.0),
+      min(v.a, 1.0)
+   );
+}
 
 void main() {
-   float turnRate = 0.5 / float(samples);
-   float rangePerSample = range / float(samples);
-
-   bool attract = (frameCount / attractSwitchInterval) % 2 == 0;
-   // if (frameCount % attractSwitchInterval == 0) {
-   //    attract = !attract;
-   // }
+   float rangePerSample = (range - minRange) / float(samples);
 
    vec2 v = inVelocity;
-   float speed = length(v) / timeDelta;
+   // float speed = length(v) / timeDelta;
 
-   vec2 leftVelocity  = vec2( v.y, -v.x);
-   vec2 rightVelocity = vec2(-v.y,  v.x);
+   // vec2 leftVelocity = rotate(v, radians(90.0));
+   // vec2 rightVelocity = rotate(v, radians(-90.0));
+
+   vec2 texPosition = (inPosition + 1.0) / 2.0;
+
+   vec2 leftVelocity = vec2(-v.y, v.x);
+   vec2 rightVelocity = vec2(v.y, -v.x);
 
    float leftSpores = 0.0;
    float rightSpores = 0.0;
+   float fSamples = float(samples);
 
-   for (int i = 1; i <= samples; i++) {
-      vec4 left = texture(uSpores, inPosition + (normalize(leftVelocity) * (float(i) * rangePerSample)));
-      leftSpores += left.r;
+   for (float i = minRange; i <= fSamples; i++) {
+      vec4 left = texture(uSpores, texPosition + (leftVelocity * i * rangePerSample));
+      leftSpores += left.r + left.g + left.b;
    }
 
-   for (int i = 1; i <= samples; i++) {
-      vec4 right = texture(uSpores, inPosition + (normalize(rightVelocity) * (float(i) * rangePerSample)));
-      rightSpores += right.r;
+   for (float i = minRange; i <= fSamples; i++) {
+      vec4 right = texture(uSpores, texPosition + (rightVelocity * i * rangePerSample));
+      rightSpores += right.r + right.g + right.b;
    }
 
+   vec2 remainingVelocity = inVelocity * (1.0 - turnRate);
+   vec2 leftComponent = remainingVelocity + (turnRate * leftSpores * leftVelocity / fSamples);
+   vec2 rightComponent = remainingVelocity + (turnRate * rightSpores * rightVelocity / fSamples);
 
-   if (attract) {
-      outVelocity = ((1.0 - turnRate) * inVelocity) + (turnRate * leftSpores * leftVelocity) + (turnRate * rightSpores * rightVelocity);
-   } else {
-      outVelocity = ((1.0 - turnRate) * inVelocity) + (turnRate * leftSpores * rightVelocity) + (turnRate * rightSpores * leftVelocity);
-   }
+   outVelocity = leftComponent + rightComponent;
+   // outVelocity = inVelocity;
 
-   outVelocity = 0.3 * normalize(outVelocity);
+   outVelocity = 0.8 * normalize(outVelocity);
 
    vec2 nextPosition = inPosition + (outVelocity * timeDelta);
-   if (nextPosition.x < -1.0 || nextPosition.x > 1.0) outVelocity.x *= -1.0;
-   if (nextPosition.y < -1.0 || nextPosition.y > 1.0) outVelocity.y *= -1.0;
+   if (abs(nextPosition.x) > 1.0) outVelocity.x *= -1.0;
+   if (abs(nextPosition.y) > 1.0) outVelocity.y *= -1.0;
 
    outPosition = inPosition + (outVelocity * timeDelta);
+   // vColor = sanitize(vec4(1.0, normalize(outVelocity).x, normalize(outVelocity).y, 1.0));
+   vColor = vec4(
+      1.0,
+      leftSpores / fSamples,
+      rightSpores / fSamples,
+      1.0
+   );
 
-   gl_PointSize = 1.0; // spore size
+   // gl_PointSize = max(1.0, sporeSize * ((leftSpores + rightSpores) / float(2 * samples)));
+   gl_PointSize = sporeSize;
    gl_Position = vec4(outPosition, 0, 1.0);
    // outPosition = inPosition + inVelocity * timeDelta;
    // outVelocity = outVelocity;

@@ -8,11 +8,12 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "start": "http-server -c-1 -p 3000",
+    "start": "live-server --port=3000",
     "test": "mocha"
   },
   "dependencies": {
-    "http-server": "^13.0.2"
+    "http-server": "^13.0.2",
+    "live-server": "^1.2.1"
   },
   "devDependencies": {
     "chai": "^4.3.4",
