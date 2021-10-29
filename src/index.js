@@ -3,7 +3,7 @@ import { createInitialData, extractPositions } from "./createInitialData.js";
 
 // const PARTICLES_COUNT = Math.pow(10, 1);
 const PARTICLES_COUNT = Math.pow(10, 5)
-const TEXTURE_SIZE = 2048
+const TEXTURE_SIZE = 1024
 const SPORE_INTERVAL = 1
 const TARGET_FPS = 60
 const RENDER_PARTICLES = false;
