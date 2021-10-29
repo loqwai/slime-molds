@@ -16,7 +16,7 @@ out vec2 outPosition;
 out vec2 outVelocity;
 
 float velocityMultiplier = 0.2;
-float sporeSize = 2.0;
+float sporeSize = 1.0;
 float minRange = 0.0;
 float range = 0.2;
 float turnRate = 0.8;
