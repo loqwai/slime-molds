@@ -1,5 +1,6 @@
-const times = (n) => [...new Array(n).keys()]
+const velocityMultiplier = 1.0;
 
+const times = (n) => [...new Array(n).keys()]
 
 export const createPoint = (n, i) => {
   const max = Math.ceil(Math.sqrt(n)) // 10
@@ -13,8 +14,8 @@ export const createPoint = (n, i) => {
   const velY = -0.1 * posY
   const velMagnitude = Math.sqrt((velX * velX) + (velY * velY))
 
-  const outVelX = (isNaN(velX / velMagnitude) ? 0 : velX / velMagnitude)
-  const outVelY = (isNaN(velY / velMagnitude) ? 0 : velY / velMagnitude)
+  const outVelX = velocityMultiplier * (isNaN(velX / velMagnitude) ? 0 : velX / velMagnitude)
+  const outVelY = velocityMultiplier * (isNaN(velY / velMagnitude) ? 0 : velY / velMagnitude)
 
   return [
     posX,

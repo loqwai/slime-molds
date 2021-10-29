@@ -102,7 +102,7 @@ const bindUpdateBuffer = (gl, program, vao, vertexBuffer) => {
   gl.vertexAttribPointer(colorAttrib, 4, gl.FLOAT, false, toBytes(8), toBytes(4));
 }
 
-const toBytes = (n) => n * Float64Array.BYTES_PER_ELEMENT
+const toBytes = (n) => n * Float32Array.BYTES_PER_ELEMENT
 
 const bindSporeTextureBuffer = (gl, program, vao, vertexBuffer, textureBuffer) => {
   const positionAttrib = gl.getAttribLocation(program, 'inPosition')
@@ -271,16 +271,16 @@ const main = async () => {
 
   const buffer1 = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer1)
-  gl.bufferData(gl.ARRAY_BUFFER, new Float64Array(initialData), gl.DYNAMIC_DRAW)
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(initialData), gl.DYNAMIC_DRAW)
 
 
   const buffer2 = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer2)
-  gl.bufferData(gl.ARRAY_BUFFER, new Float64Array(initialData), gl.DYNAMIC_DRAW)
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(initialData), gl.DYNAMIC_DRAW)
 
   const sporeTextureVertexBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, sporeTextureVertexBuffer)
-  gl.bufferData(gl.ARRAY_BUFFER, new Float64Array([
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
     // triangle 1
     -1, -1,
     -1,  1,
@@ -293,7 +293,7 @@ const main = async () => {
 
   const sporeTextureTexcoordBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, sporeTextureTexcoordBuffer)
-  gl.bufferData(gl.ARRAY_BUFFER, new Float64Array([
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
     0, 0,
     0, 1,
     1, 0,
