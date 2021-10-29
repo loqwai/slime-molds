@@ -8,16 +8,19 @@ uniform int frameCount;
 
 in vec2 inPosition;
 in vec2 inVelocity;
+in vec4 inColor;
 
+out vec4 outColor;
 out vec4 vColor;
 out vec2 outPosition;
 out vec2 outVelocity;
 
-float sporeSize = 3.0;
-float minRange = 0.0; // should be greater than 1 / texture width
-float range = 0.1;
-float turnRate = 0.8;
-int samples = 10;
+float velocityMultiplier = 0.1;
+float sporeSize = 1.0;
+float minRange = 0.0;
+float range = 0.9;
+float turnRate = 0.7;
+int samples = 5;
 
 bool onField(float n) {
    return abs(n) <= 1.0;
@@ -57,14 +60,18 @@ void main() {
    float rightSpores = 0.0;
    float fSamples = float(samples);
 
+   vec4 color = vec4(0.0);
+
    for (float i = minRange; i <= fSamples; i++) {
       vec4 left = texture(uSpores, texPosition + (leftVelocity * i * rangePerSample));
       leftSpores += left.r + left.g + left.b;
+      color += left / (fSamples * 2.0);
    }
 
    for (float i = minRange; i <= fSamples; i++) {
       vec4 right = texture(uSpores, texPosition + (rightVelocity * i * rangePerSample));
       rightSpores += right.r + right.g + right.b;
+      color += right / (fSamples * 2.0);
    }
 
    vec2 remainingVelocity = inVelocity * (1.0 - turnRate);
@@ -74,20 +81,33 @@ void main() {
    outVelocity = leftComponent + rightComponent;
    // outVelocity = inVelocity;
 
-   outVelocity = 0.8 * normalize(outVelocity);
+   outVelocity = velocityMultiplier * normalize(outVelocity);
 
    vec2 nextPosition = inPosition + (outVelocity * timeDelta);
    if (abs(nextPosition.x) > 1.0) outVelocity.x *= -1.0;
    if (abs(nextPosition.y) > 1.0) outVelocity.y *= -1.0;
 
    outPosition = inPosition + (outVelocity * timeDelta);
-   // vColor = sanitize(vec4(1.0, normalize(outVelocity).x, normalize(outVelocity).y, 1.0));
+   // outColor = sanitize(vec4(1.0, normalize(outVelocity).x, normalize(outVelocity).y, 1.0));
+   // outColor = vec4(
+   //    1.0,
+   //    leftSpores / fSamples,
+   //    rightSpores / fSamples,
+   //    1.0
+   // );
+   // vec4 peerColor = normalize(vec4(color.rgb, 1.0));
+   // float peerPressure = 0.1 * length(vec4(peerColor.rgb, 0.0));
+   // outColor = (inColor * (1.0 - peerPressure)) + (normalize(peerColor) * peerPressure);
+
    vColor = vec4(
-      1.0,
-      leftSpores / fSamples,
-      rightSpores / fSamples,
+      max(inColor.r, ((inColor.r + color.r) / 2.0)),
+      max(inColor.g, ((inColor.g + color.g) / 2.0)),
+      max(inColor.b, ((inColor.b + color.b) / 2.0)),
       1.0
    );
+   outColor = inColor;
+   // outColor = vec4(color.rgb, 1.0);
+   // outColor = inColor;
 
    // gl_PointSize = max(1.0, sporeSize * ((leftSpores + rightSpores) / float(2 * samples)));
    gl_PointSize = sporeSize;

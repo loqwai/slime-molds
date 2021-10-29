@@ -54,7 +54,7 @@ const createUpdateProgram = async (gl) => {
 
   gl.transformFeedbackVaryings(
     program,
-    ["outPosition", "outVelocity"],
+    ["outPosition", "outVelocity","outColor"],
     gl.INTERLEAVED_ATTRIBS,
   )
 
@@ -85,16 +85,21 @@ const createRenderProgram = async (gl) => {
 const bindUpdateBuffer = (gl, program, vao, vertexBuffer) => {
   const positionAttrib = gl.getAttribLocation(program, 'inPosition')
   const velocityAttrib = gl.getAttribLocation(program, 'inVelocity')
+  const colorAttrib = gl.getAttribLocation(program, 'inColor')
 
   gl.bindVertexArray(vao);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
   gl.enableVertexAttribArray(positionAttrib);
-  gl.vertexAttribPointer(positionAttrib, 2, gl.FLOAT, false, toBytes(4), 0);
+  gl.vertexAttribPointer(positionAttrib, 2, gl.FLOAT, false, toBytes(8), 0);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
   gl.enableVertexAttribArray(velocityAttrib);
-  gl.vertexAttribPointer(velocityAttrib, 2, gl.FLOAT, false, toBytes(4), toBytes(2));
+  gl.vertexAttribPointer(velocityAttrib, 2, gl.FLOAT, false, toBytes(8), toBytes(2));
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
+  gl.enableVertexAttribArray(colorAttrib);
+  gl.vertexAttribPointer(colorAttrib, 4, gl.FLOAT, false, toBytes(8), toBytes(4));
 }
 
 const toBytes = (n) => n * Float32Array.BYTES_PER_ELEMENT
@@ -121,7 +126,7 @@ const bindPositionBuffer = (gl, program, vao, buffer) => {
 
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
   gl.enableVertexAttribArray(positionAttrib);
-  gl.vertexAttribPointer(positionAttrib, 2, gl.FLOAT, false, toBytes(4), toBytes(0));
+  gl.vertexAttribPointer(positionAttrib, 2, gl.FLOAT, false, toBytes(8), toBytes(0));
 }
 
 const calcTimeDelta = (oldTimestamp, newTimestamp) => {
@@ -182,8 +187,8 @@ const render = (gl, state, timestamp) => {
     // Bind our update program
     gl.useProgram(state.update.program)
     gl.uniform1f(state.update.attribs.timeDelta, timeDelta / 1000.0);
-    gl.uniform1i(state.update.attribs.frameCount, state.frameCount);
-    gl.uniform1i(state.update.attribs.sporeInterval, state.sporeInterval);
+    // gl.uniform1i(state.update.attribs.frameCount, state.frameCount);
+    // gl.uniform1i(state.update.attribs.sporeInterval, state.sporeInterval);
     gl.bindTexture(gl.TEXTURE_2D, state.update.read.sporeTexture);
 
     // Bind our particle data
@@ -311,7 +316,7 @@ const main = async () => {
   tagObject(gl, sporeTexture2, "sporeTexture2")
   gl.bindTexture(gl.TEXTURE_2D, sporeTexture2)
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, sporeTextureWidth, sporeTextureHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4 * sporeTextureWidth * sporeTextureHeight))
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
   gl.bindTexture(gl.TEXTURE_2D, null)
@@ -372,8 +377,8 @@ const main = async () => {
     update: {
       program: updateProgram,
       attribs: {
-        frameCount: gl.getUniformLocation(updateProgram, "frameCount"),
-        sporeInterval: gl.getUniformLocation(updateProgram, "sporeInterval"),
+        // frameCount: gl.getUniformLocation(updateProgram, "frameCount"),
+        // sporeInterval: gl.getUniformLocation(updateProgram, "sporeInterval"),
         timeDelta: gl.getUniformLocation(updateProgram, "timeDelta"),
       },
       read: {
