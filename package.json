@@ -11,12 +11,10 @@
     "start": "live-server --port=3000",
     "test": "mocha"
   },
-  "dependencies": {
-  },
   "devDependencies": {
     "chai": "^4.3.4",
-    "mocha": "^9.1.2",
     "http-server": "^13.0.2",
-    "live-server": "^1.2.1"
+    "live-server": "^1.2.1",
+    "mocha": "^9.1.2"
   }
 }
