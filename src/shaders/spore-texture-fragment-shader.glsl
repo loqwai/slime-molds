@@ -1,7 +1,7 @@
 #version 300 es
 precision highp float;
 
-float fadeRate = 0.01;
+float fadeRate = 0.005;
 
 uniform sampler2D uTexture;
 
@@ -15,7 +15,7 @@ void main() {
     max(0.0, outColor.r - fadeRate),
     max(0.0, outColor.g - fadeRate),
     max(0.0, outColor.b - fadeRate),
-    max(0.0, outColor.a - fadeRate)
+    max(1.0, outColor.a - fadeRate)
   );
 
   // if (length(vec4(outColor.rgb, 0.0)) < 0.2) {
