@@ -187,8 +187,8 @@ const render = (gl, state, timestamp) => {
     // Bind our update program
     gl.useProgram(state.update.program)
     gl.uniform1f(state.update.attribs.timeDelta, timeDelta / 1000.0);
-    // gl.uniform1i(state.update.attribs.frameCount, state.frameCount);
-    // gl.uniform1i(state.update.attribs.sporeInterval, state.sporeInterval);
+    gl.uniform1i(state.update.attribs.frameCount, state.frameCount);
+    gl.uniform1i(state.update.attribs.sporeInterval, state.sporeInterval);
     gl.bindTexture(gl.TEXTURE_2D, state.update.read.sporeTexture);
 
     // Bind our particle data
@@ -382,8 +382,8 @@ const main = async () => {
     update: {
       program: updateProgram,
       attribs: {
-        // frameCount: gl.getUniformLocation(updateProgram, "frameCount"),
-        // sporeInterval: gl.getUniformLocation(updateProgram, "sporeInterval"),
+        frameCount: gl.getUniformLocation(updateProgram, "frameCount"),
+        sporeInterval: gl.getUniformLocation(updateProgram, "sporeInterval"),
         timeDelta: gl.getUniformLocation(updateProgram, "timeDelta"),
       },
       read: {
