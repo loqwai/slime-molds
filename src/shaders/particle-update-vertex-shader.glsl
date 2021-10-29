@@ -42,6 +42,10 @@ vec4 sanitize(vec4 v) {
    );
 }
 
+float calcLuminance(vec4 color) {
+   return (0.2126 * color.r) + (0.7152 * color.g) + (0.0722 * color.b);
+}
+
 void main() {
    float rangePerSample = (range - minRange) / float(samples);
 
@@ -65,13 +69,13 @@ void main() {
    for (float i = minRange; i <= fSamples; i++) {
       vec4 left = texture(uSpores, texPosition + (leftVelocity * i * rangePerSample));
       leftSpores += left.r + left.g + left.b;
-      color += left / (fSamples * 2.0);
+      color += left;
    }
 
    for (float i = minRange; i <= fSamples; i++) {
       vec4 right = texture(uSpores, texPosition + (rightVelocity * i * rangePerSample));
       rightSpores += right.r + right.g + right.b;
-      color += right / (fSamples * 2.0);
+      color += right;
    }
 
    vec2 remainingVelocity = inVelocity * (1.0 - turnRate);
@@ -100,11 +104,17 @@ void main() {
    // outColor = (inColor * (1.0 - peerPressure)) + (normalize(peerColor) * peerPressure);
 
    vColor = vec4(
-      max(inColor.r, ((inColor.r + color.r) / 2.0)),
-      max(inColor.g, ((inColor.g + color.g) / 2.0)),
-      max(inColor.b, ((inColor.b + color.b) / 2.0)),
+      (inColor.r * 0.01) + (color.r * 0.99),
+      (inColor.g * 0.01) + (color.g * 0.99),
+      (inColor.b * 0.01) + (color.b * 0.99),
       1.0
    );
+
+   float oldLuminance = calcLuminance(inColor);
+   float newLuminance = calcLuminance(vColor);
+
+   vColor *= (oldLuminance / newLuminance);
+
    outColor = inColor;
    // outColor = vec4(color.rgb, 1.0);
    // outColor = inColor;
