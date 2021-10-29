@@ -217,8 +217,11 @@ const render = (gl, state, timestamp) => {
   // Clear the screen
   {
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    gl.clearColor(0, 0, 0, 0);
+    gl.clearColor(7 / 256, 59 / 256, 76 / 256, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
+
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE_MINUS_DST_COLOR, gl.ONE);
   }
 
   // // Render spore texture to Screen
@@ -236,6 +239,8 @@ const render = (gl, state, timestamp) => {
     gl.bindVertexArray(state.render.read.vao);
     gl.drawArrays(gl.POINTS, 0, state.particlesCount);
   }
+
+  gl.disable(gl.BLEND);
 
   // Swap the read & write buffers
   const renderTmp = state.render.write

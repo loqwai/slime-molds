@@ -1,7 +1,7 @@
 #version 300 es
 precision highp float;
 
-float fadeRate = 0.005;
+float fadeRate = 0.01;
 
 uniform sampler2D uTexture;
 
