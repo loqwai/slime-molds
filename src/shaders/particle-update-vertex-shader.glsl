@@ -1,6 +1,6 @@
 #version 300 es
-precision mediump float;
-precision mediump int;
+precision highp float;
+precision highp int;
 
 uniform float timeDelta; // in seconds
 uniform sampler2D uSpores;

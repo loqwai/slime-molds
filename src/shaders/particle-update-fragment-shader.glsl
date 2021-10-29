@@ -1,5 +1,6 @@
 #version 300 es
-precision mediump float;
+precision highp float;
+precision highp int;
 
 uniform int frameCount;
 uniform int sporeInterval;
