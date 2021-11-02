@@ -8,7 +8,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "start": "live-server --port=3000",
+    "start": "live-server --port=3000 --ignorePattern=.git",
     "test": "mocha"
   },
   "devDependencies": {

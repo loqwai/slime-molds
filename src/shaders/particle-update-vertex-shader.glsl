@@ -15,11 +15,11 @@ out vec4 vColor;
 out vec2 outPosition;
 out vec2 outVelocity;
 
-float velocityMultiplier = 0.2;
+float velocityMultiplier = 0.08;
 float sporeSize = 1.0;
 float minRange = 0.0;
-float range = 0.2;
-float turnRate = 0.8;
+float range = 1.0;
+float turnRate = 0.5;
 int samples = 5;
 
 bool onField(float n) {
