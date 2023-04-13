@@ -9,7 +9,7 @@ const TARGET_FPS = 60
 const RENDER_PARTICLES = false;
 const RENDER_SPORES = true;
 
-const fetchShader = async (filename)  => (await fetch(filename)).text()
+const fetchShader = async (filename) => (await fetch(filename)).text()
 
 const createShader = async (gl, type, filename) => {
   const shader = gl.createShader(type)
@@ -54,7 +54,7 @@ const createUpdateProgram = async (gl) => {
 
   gl.transformFeedbackVaryings(
     program,
-    ["outPosition", "outVelocity","outColor"],
+    ["outPosition", "outVelocity", "outColor"],
     gl.INTERLEAVED_ATTRIBS,
   )
 
@@ -288,13 +288,13 @@ const main = async () => {
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
     // triangle 1
     -1, -1,
-    -1,  1,
-     1, -1,
-     // triangle 2
-     1, -1,
-    -1,  1,
-     1,  1,
-    ]), gl.STATIC_DRAW) // Two triangles covering the entire screen
+    -1, 1,
+    1, -1,
+    // triangle 2
+    1, -1,
+    -1, 1,
+    1, 1,
+  ]), gl.STATIC_DRAW) // Two triangles covering the entire screen
 
   const sporeTextureTexcoordBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, sporeTextureTexcoordBuffer)
@@ -403,7 +403,7 @@ const main = async () => {
     frameCount: 0,
   }
 
-  requestAnimationFrame((timeDelta) => render(gl, state, timeDelta) )
+  requestAnimationFrame((timeDelta) => render(gl, state, timeDelta))
 };
 
 main();

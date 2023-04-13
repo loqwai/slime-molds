@@ -15,12 +15,13 @@ out vec4 vColor;
 out vec2 outPosition;
 out vec2 outVelocity;
 
-float velocityMultiplier = 0.08;
-float sporeSize = 1.0;
+float velocityMultiplier = 1.0;
+float sporeSize = 5.0;
 float minRange = 0.0;
-float range = 1.0;
-float turnRate = 0.5;
+float range = 0.020;
+float turnRate = 0.2;
 int samples = 5;
+float color_adoption_rate = 0.9;
 
 bool onField(float n) {
    return abs(n) <= 1.0;
@@ -103,17 +104,20 @@ void main() {
    // float peerPressure = 0.1 * length(vec4(peerColor.rgb, 0.0));
    // outColor = (inColor * (1.0 - peerPressure)) + (normalize(peerColor) * peerPressure);
 
+   float keep_new_factor = color_adoption_rate;
+   float keep_old_factor = 1.0 - color_adoption_rate;
+
    vColor = vec4(
-      (inColor.r * 0.01) + (color.r * 0.99),
-      (inColor.g * 0.01) + (color.g * 0.99),
-      (inColor.b * 0.01) + (color.b * 0.99),
+      (inColor.r * keep_old_factor) + (color.r * keep_new_factor),
+      (inColor.g * keep_old_factor) + (color.g * keep_new_factor),
+      (inColor.b * keep_old_factor) + (color.b * keep_new_factor),
       1.0
    );
 
    float oldLuminance = calcLuminance(inColor);
    float newLuminance = calcLuminance(vColor);
 
-   vColor *= (oldLuminance / newLuminance);
+   vColor *= oldLuminance / newLuminance;
 
    outColor = inColor;
    // outColor = vec4(color.rgb, 1.0);
