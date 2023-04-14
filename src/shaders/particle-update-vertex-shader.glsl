@@ -8,6 +8,9 @@ uniform int frameCount;
 
 // fun parameters to tweak at runtime
 uniform float turnRate;
+uniform float velocityMultiplier;
+uniform float sporeSize;
+uniform float range;
 
 in vec2 inPosition;
 in vec2 inVelocity;
@@ -18,10 +21,7 @@ out vec4 vColor;
 out vec2 outPosition;
 out vec2 outVelocity;
 
-float velocityMultiplier = 3.0;
-float sporeSize = 4.0;
 float minRange = 0.0;
-float range = 0.060;
 int samples = 5;
 float color_adoption_rate = 0.9;
 

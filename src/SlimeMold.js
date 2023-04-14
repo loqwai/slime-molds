@@ -19,11 +19,26 @@ class SlimeMold {
     this.running = false;
     this.parameters = {
       turnRate: 0.8,
+      velocityMultiplier: 3.0,
+      sporeSize: 4.0,
+      range: 0.060,
     }
   }
 
   setTurnRate = (turnRate) => {
     this.parameters.turnRate = turnRate;
+  }
+
+  setVelocityMultiplier = (velocityMultiplier) => {
+    this.parameters.velocityMultiplier = velocityMultiplier;
+  }
+
+  setSporeSize = (sporeSize) => {
+    this.parameters.sporeSize = sporeSize;
+  }
+
+  setRange = (range) => {
+    this.parameters.range = range;
   }
 
   stop = () => {
@@ -83,6 +98,9 @@ class SlimeMold {
         gl.uniform1i(state.update.attribs.frameCount, state.frameCount);
         gl.uniform1i(state.update.attribs.sporeInterval, state.sporeInterval);
         gl.uniform1f(state.update.attribs.turnRate, this.parameters.turnRate);
+        gl.uniform1f(state.update.attribs.velocityMultiplier, this.parameters.velocityMultiplier);
+        gl.uniform1f(state.update.attribs.sporeSize, this.parameters.sporeSize);
+        gl.uniform1f(state.update.attribs.range, this.parameters.range);
         gl.bindTexture(gl.TEXTURE_2D, state.update.read.sporeTexture);
       }
 
@@ -279,6 +297,9 @@ class SlimeMold {
           sporeInterval: gl.getUniformLocation(updateProgram, "sporeInterval"),
           timeDelta: gl.getUniformLocation(updateProgram, "timeDelta"),
           turnRate: gl.getUniformLocation(updateProgram, "turnRate"),
+          velocityMultiplier: gl.getUniformLocation(updateProgram, "velocityMultiplier"),
+          sporeSize: gl.getUniformLocation(updateProgram, "sporeSize"),
+          range: gl.getUniformLocation(updateProgram, "range"),
         },
         read: {
           vao: readUpdateVao,
