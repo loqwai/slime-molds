@@ -17,6 +17,13 @@ class SlimeMold {
     this.canvas = canvas;
     this.gl = this.canvas.getContext("webgl2")
     this.running = false;
+    this.parameters = {
+      turnRate: 0.8,
+    }
+  }
+
+  setTurnRate = (turnRate) => {
+    this.parameters.turnRate = turnRate;
   }
 
   stop = () => {
@@ -53,16 +60,14 @@ class SlimeMold {
       gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
       gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, state.update.write.sporeTexture, 0);
 
-      // enable blending of output (so that transparent particles show the spore texture instead)
+      // enable blending of output so that transparency in the particle layer shows the spore texture instead
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_COLOR);
-      // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA)
 
       // Resize our viewport to match the output texture
       gl.viewport(0, 0, state.sporeTexture.width, state.sporeTexture.height)
 
-      // // Render spore texture to Screen
+      // Render spore texture to Screen
       {
         gl.useProgram(state.sporeTexture.program);
         gl.bindTexture(gl.TEXTURE_2D, state.render.write.sporeTexture);
@@ -72,11 +77,14 @@ class SlimeMold {
       }
 
       // Bind our update program
-      gl.useProgram(state.update.program)
-      gl.uniform1f(state.update.attribs.timeDelta, timeDelta / 1000.0);
-      gl.uniform1i(state.update.attribs.frameCount, state.frameCount);
-      gl.uniform1i(state.update.attribs.sporeInterval, state.sporeInterval);
-      gl.bindTexture(gl.TEXTURE_2D, state.update.read.sporeTexture);
+      {
+        gl.useProgram(state.update.program)
+        gl.uniform1f(state.update.attribs.timeDelta, timeDelta / 1000.0);
+        gl.uniform1i(state.update.attribs.frameCount, state.frameCount);
+        gl.uniform1i(state.update.attribs.sporeInterval, state.sporeInterval);
+        gl.uniform1f(state.update.attribs.turnRate, this.parameters.turnRate);
+        gl.bindTexture(gl.TEXTURE_2D, state.update.read.sporeTexture);
+      }
 
       // Bind our particle data
       gl.bindVertexArray(state.update.read.vao); // input
@@ -270,6 +278,7 @@ class SlimeMold {
           frameCount: gl.getUniformLocation(updateProgram, "frameCount"),
           sporeInterval: gl.getUniformLocation(updateProgram, "sporeInterval"),
           timeDelta: gl.getUniformLocation(updateProgram, "timeDelta"),
+          turnRate: gl.getUniformLocation(updateProgram, "turnRate"),
         },
         read: {
           vao: readUpdateVao,

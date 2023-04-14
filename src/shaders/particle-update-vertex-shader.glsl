@@ -6,6 +6,9 @@ uniform float timeDelta; // in seconds
 uniform sampler2D uSpores;
 uniform int frameCount;
 
+// fun parameters to tweak at runtime
+uniform float turnRate;
+
 in vec2 inPosition;
 in vec2 inVelocity;
 in vec4 inColor;
@@ -15,11 +18,10 @@ out vec4 vColor;
 out vec2 outPosition;
 out vec2 outVelocity;
 
-float velocityMultiplier = 3.1427;
+float velocityMultiplier = 3.0;
 float sporeSize = 4.0;
 float minRange = 0.0;
 float range = 0.060;
-float turnRate = 0.8;
 int samples = 5;
 float color_adoption_rate = 0.9;
 
@@ -51,10 +53,6 @@ void main() {
    float rangePerSample = (range - minRange) / float(samples);
 
    vec2 v = inVelocity;
-   // float speed = length(v) / timeDelta;
-
-   // vec2 leftVelocity = rotate(v, radians(90.0));
-   // vec2 rightVelocity = rotate(v, radians(-90.0));
 
    vec2 texPosition = (inPosition + 1.0) / 2.0;
 

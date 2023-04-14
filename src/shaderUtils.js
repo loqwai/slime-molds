@@ -20,7 +20,8 @@ export const createShader = async (gl, type, filename) => {
   return shader;
 }
 
-const BASE_PATH = location.hostname === 'localhost' ? './src/shaders' : 'https://raw.githubusercontent.com/loqwai/slime-molds/main/src/shaders'
+const ON_LOCALHOST = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+const BASE_PATH = ON_LOCALHOST ? './src/shaders' : 'https://raw.githubusercontent.com/loqwai/slime-molds/main/src/shaders'
 
 const getSporeTextureVertexShader = async (gl) => createShader(gl, gl.VERTEX_SHADER, `${BASE_PATH}/spore-texture-vertex-shader.glsl`)
 const getSporeTextureFragmentShader = async (gl) => createShader(gl, gl.FRAGMENT_SHADER, `${BASE_PATH}/spore-texture-fragment-shader.glsl`)
