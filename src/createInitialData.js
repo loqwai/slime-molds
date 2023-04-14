@@ -2,7 +2,7 @@ const velocityMultiplier = 1.0;
 
 const times = (n) => [...new Array(n).keys()]
 
-export const createPoint = (n, i) => {
+const createPoint = (n, i) => {
   const max = Math.ceil(Math.sqrt(n)) // 10
   const x = Math.floor(i / max) // 1
   const y = Math.floor(i % max) // 0
@@ -31,7 +31,3 @@ export const createPoint = (n, i) => {
 }
 
 export const createInitialData = n => times(n).flatMap(i => createPoint(n, i))
-
-export const extractPositions = (data) => (
-  times(data.length).flatMap(i => [data[i * 4], data[(i * 4) + 1]])
-)

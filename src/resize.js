@@ -35,27 +35,27 @@ const resizeCanvasToDisplaySize = (canvas) => {
   const [displayWidth, displayHeight] = canvasToDisplaySizeMap.get(canvas);
 
   // Check if the canvas is not the same size.
-  const needResize = canvas.width  != displayWidth ||
-                    canvas.height != displayHeight;
+  const needResize = canvas.width != displayWidth ||
+    canvas.height != displayHeight;
 
   if (needResize) {
     // Make the canvas the same size
-    canvas.width  = displayWidth;
+    canvas.width = displayWidth;
     canvas.height = displayHeight;
   }
 
   return canvasToDisplaySizeMap;
 }
 
-export const initAutoResize = (canvas)  => {
+export const initAutoResize = (canvas) => {
   const canvasToDisplaySizeMap = resizeCanvasToDisplaySize(canvas);
 
   const resizeObserver = new ResizeObserver((entries) => onResize(entries, canvasToDisplaySizeMap));
   try {
     // only call us of the number of device pixels changed
-    resizeObserver.observe(canvas, {box: 'device-pixel-content-box'});
+    resizeObserver.observe(canvas, { box: 'device-pixel-content-box' });
   } catch (ex) {
     // device-pixel-content-box is not supported so fallback to this
-    resizeObserver.observe(canvas, {box: 'content-box'});
+    resizeObserver.observe(canvas, { box: 'content-box' });
   }
 };

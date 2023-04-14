@@ -15,11 +15,11 @@ out vec4 vColor;
 out vec2 outPosition;
 out vec2 outVelocity;
 
-float velocityMultiplier = 1.0;
-float sporeSize = 5.0;
+float velocityMultiplier = 3.1427;
+float sporeSize = 4.0;
 float minRange = 0.0;
-float range = 0.020;
-float turnRate = 0.2;
+float range = 0.060;
+float turnRate = 0.8;
 int samples = 5;
 float color_adoption_rate = 0.9;
 
