@@ -12,11 +12,13 @@ const RENDER_SPORES = true;
 class SlimeMold {
   /**
    * @param {!HTMLCanvasElement} canvas
+   * @param {string} shaderPathPrefix
    */
-  constructor(canvas) {
+  constructor(canvas, shaderPathPrefix = 'https://raw.githubusercontent.com/loqwai/slime-molds/main/src/shaders') {
     this.canvas = canvas;
     this.gl = this.canvas.getContext("webgl2")
     this.running = false;
+    this.shaderPathPrefix = shaderPathPrefix;
     this.parameters = {
       turnRate: 0.8,
       velocityMultiplier: 3.0,
@@ -237,9 +239,9 @@ class SlimeMold {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
     gl.bindTexture(gl.TEXTURE_2D, null)
 
-    const sporeTextureProgram = await createSporeTextureProgram(gl)
-    const updateProgram = await createUpdateProgram(gl)
-    const renderProgram = await createRenderProgram(gl)
+    const sporeTextureProgram = await createSporeTextureProgram(gl, this.shaderPathPrefix)
+    const updateProgram = await createUpdateProgram(gl, this.shaderPathPrefix)
+    const renderProgram = await createRenderProgram(gl, this.shaderPathPrefix)
     tagObject(gl, sporeTextureProgram, "sporeTextureProgram")
     tagObject(gl, updateProgram, "updateProgram")
     tagObject(gl, renderProgram, "renderProgram")

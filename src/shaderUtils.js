@@ -19,16 +19,12 @@ export const createShader = async (gl, type, filename) => {
   }
   return shader;
 }
-
-const ON_LOCALHOST = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
-const BASE_PATH = ON_LOCALHOST ? './src/shaders' : 'https://raw.githubusercontent.com/loqwai/slime-molds/main/src/shaders'
-
-const getSporeTextureVertexShader = async (gl) => createShader(gl, gl.VERTEX_SHADER, `${BASE_PATH}/spore-texture-vertex-shader.glsl`)
-const getSporeTextureFragmentShader = async (gl) => createShader(gl, gl.FRAGMENT_SHADER, `${BASE_PATH}/spore-texture-fragment-shader.glsl`)
-const getParticleUpdateVertexShader = async (gl) => createShader(gl, gl.VERTEX_SHADER, `${BASE_PATH}/particle-update-vertex-shader.glsl`)
-const getParticleUpdateFragmentShader = async (gl) => createShader(gl, gl.FRAGMENT_SHADER, `${BASE_PATH}/particle-update-fragment-shader.glsl`)
-const getParticleRenderVertexShader = async (gl) => createShader(gl, gl.VERTEX_SHADER, `${BASE_PATH}/particle-render-vertex-shader.glsl`)
-const getParticleRenderFragmentShader = async (gl) => createShader(gl, gl.FRAGMENT_SHADER, `${BASE_PATH}/particle-render-fragment-shader.glsl`)
+const getSporeTextureVertexShader = async (gl, basePath) => createShader(gl, gl.VERTEX_SHADER, `${basePath}/spore-texture-vertex-shader.glsl`)
+const getSporeTextureFragmentShader = async (gl, basePath) => createShader(gl, gl.FRAGMENT_SHADER, `${basePath}/spore-texture-fragment-shader.glsl`)
+const getParticleUpdateVertexShader = async (gl, basePath) => createShader(gl, gl.VERTEX_SHADER, `${basePath}/particle-update-vertex-shader.glsl`)
+const getParticleUpdateFragmentShader = async (gl, basePath) => createShader(gl, gl.FRAGMENT_SHADER, `${basePath}/particle-update-fragment-shader.glsl`)
+const getParticleRenderVertexShader = async (gl, basePath) => createShader(gl, gl.VERTEX_SHADER, `${basePath}/particle-render-vertex-shader.glsl`)
+const getParticleRenderFragmentShader = async (gl, basePath) => createShader(gl, gl.FRAGMENT_SHADER, `${basePath}/particle-render-fragment-shader.glsl`)
 
 /**
  * Renders the spore texture program. The spore texture is a 2D texture that
@@ -38,13 +34,14 @@ const getParticleRenderFragmentShader = async (gl) => createShader(gl, gl.FRAGME
  * program will still be executed if spore rendering is disabled, it just won't be shown
  * on the screen.
  * @param {WebGL2RenderingContext} gl
+ * @param {string} shaderBasePath
  * @returns {Promise<WebGLProgram>}
  */
-export const createSporeTextureProgram = async (gl) => {
+export const createSporeTextureProgram = async (gl, shaderBasePath) => {
   const program = gl.createProgram()
 
-  gl.attachShader(program, await getSporeTextureVertexShader(gl))
-  gl.attachShader(program, await getSporeTextureFragmentShader(gl))
+  gl.attachShader(program, await getSporeTextureVertexShader(gl, shaderBasePath))
+  gl.attachShader(program, await getSporeTextureFragmentShader(gl, shaderBasePath))
 
   gl.linkProgram(program);
 
@@ -61,13 +58,14 @@ export const createSporeTextureProgram = async (gl) => {
  * are stored in a single buffer and are interleaved. The update program
  * outputs the updated attributes to a transform feedback buffer.
  * @param {WebGL2RenderingContext} gl
+ * @param {string} shaderBasePath
  * @returns {Promise<WebGLProgram>}
  */
-export const createUpdateProgram = async (gl) => {
+export const createUpdateProgram = async (gl, shaderBasePath) => {
   const program = gl.createProgram()
 
-  gl.attachShader(program, await getParticleUpdateVertexShader(gl))
-  gl.attachShader(program, await getParticleUpdateFragmentShader(gl))
+  gl.attachShader(program, await getParticleUpdateVertexShader(gl, shaderBasePath))
+  gl.attachShader(program, await getParticleUpdateFragmentShader(gl, shaderBasePath))
 
   gl.transformFeedbackVaryings(
     program,
@@ -91,13 +89,14 @@ const toBytes = (n) => n * Float32Array.BYTES_PER_ELEMENT
  * the particles to the screen. The render program takes the updated attributes
  * from the transform feedback buffer and renders them to the screen.
  * @param {WebGL2RenderingContext} gl
+ * @param {string} shaderBasePath
  * @returns {Promise<WebGLProgram>}
  */
-export const createRenderProgram = async (gl) => {
+export const createRenderProgram = async (gl, shaderBasePath) => {
   const program = gl.createProgram()
 
-  gl.attachShader(program, await getParticleRenderVertexShader(gl))
-  gl.attachShader(program, await getParticleRenderFragmentShader(gl))
+  gl.attachShader(program, await getParticleRenderVertexShader(gl, shaderBasePath))
+  gl.attachShader(program, await getParticleRenderFragmentShader(gl, shaderBasePath))
 
   gl.linkProgram(program);
 
